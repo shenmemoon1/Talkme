@@ -17,7 +17,7 @@ app.use(cors());
 // 使用 Express 内置的中间件解析 JSON 请求体
 app.use(express.json());
 //使用中间件
-app.use("api/auth", userRoute);
+app.use("/api/auth", userRoute);
 
 mongoose
   .connect(process.env.MONGO_URL, {
@@ -39,6 +39,6 @@ app.get("/", (req, res) => {
 const server = app.listen(process.env.PORT || 3000, () => {
   // 在控制台输出服务器启动信息，包括监听的端口号
   console.log(
-    `Listening on port: http://localhost/${process.env.PORT || 3000}`
+    `Listening on port: http://localhost:${process.env.PORT || 3000}`
   );
 });
