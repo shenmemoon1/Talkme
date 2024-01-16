@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { logo } from "../assets/index";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
@@ -34,6 +34,12 @@ export default function Register() {
     }
   };
 
+  // check if user is already logged in
+  useEffect(() => {
+    if (localStorage.getItem("chat-app-user") !== null) {
+      navigate("/");
+    }
+  }, []);
   const toastOptions = {
     position: "bottom-right",
     autoClose: 5000,
