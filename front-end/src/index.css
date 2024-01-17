@@ -62,3 +62,9 @@ button:focus-visible {
 img.logo {
   width: 4rem;
 }
+
+@layer base {
+  .selected {
+    @apply ring-8 ring-purple-400 rounded-full;
+  }
+}
