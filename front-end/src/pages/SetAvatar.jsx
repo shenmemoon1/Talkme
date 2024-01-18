@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { ToastContainer, toast, Bounce } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
-import { loginRoute } from "../utils/APIRoutes";
+import { setAvatarRoute } from "../utils/APIRoutes";
 
 export const SetAvatar = () => {
   const api = "https://api.multiavatar.com/45678945";
@@ -29,7 +29,29 @@ export const SetAvatar = () => {
 
   // set profile image
   const setProfileImage = async () => {
-    // Implement the logic to set the profile image
+    try {
+      // Implement the logic to set the profile image
+      if (selectedAvatar === undefined) {
+        throw new Error();
+      } else {
+        const user = await JSON.parse(localStorage.getItem("chat-app-user"));
+        const { data } = await axios.post(`${setAvatarRoute}/${user._id}`, {
+          avatarImage: avatars[selectedAvatar],
+        });
+
+        if (data.isSet) {
+          user.isAvatarImageSet = true;
+          user.avatarImage = data.avatarImage;
+          localStorage.setItem("chat-app-user", JSON.stringify(user));
+        } else {
+          throw new Error();
+        }
+        //back to home page
+        navigate("/");
+      }
+    } catch (error) {
+      toast("image not found, try again", toastOptions);
+    }
   };
 
   // get image from api
@@ -53,6 +75,13 @@ export const SetAvatar = () => {
     };
 
     fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!localStorage.getItem("chat-app-user")) {
+      //back to home page
+      navigate("/login");
+    }
   }, []);
 
   return (
