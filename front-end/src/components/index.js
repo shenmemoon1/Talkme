@@ -1,3 +1,3 @@
-import NavBar from "./navbar/navbar";
+import { Contact } from "./Contact";
 
-export { NavBar };
+export { Contact };
