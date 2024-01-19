@@ -79,3 +79,13 @@ module.exports.getUsers = async (req, res, next) => {
     next(error);
   }
 };
+
+// user logot
+module.exports.logout = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const user = await User.findById(id);
+  } catch (error) {
+    next(error);
+  }
+};

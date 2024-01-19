@@ -6,6 +6,8 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 //api
 const userRoute = require("./routes/userRoute");
+const messageRoute = require("./routes/messageRoute");
+const socket = require("socket.io");
 
 // 创建 Express 应用程序
 const app = express();
@@ -18,6 +20,7 @@ app.use(cors());
 app.use(express.json());
 //使用中间件
 app.use("/api/auth", userRoute);
+app.use("/api/messages", messageRoute);
 
 mongoose
   .connect(process.env.MONGO_URL, {
@@ -31,14 +34,31 @@ mongoose
     console.error("DB CONNECTION ERROR:", err.message);
   });
 
-app.get("/", (req, res) => {
-  console.log("home");
-});
-
 // 启动服务器，监听指定端口或默认端口 3000
 const server = app.listen(process.env.PORT || 3000, () => {
   // 在控制台输出服务器启动信息，包括监听的端口号
   console.log(
     `Listening on port: http://localhost:${process.env.PORT || 3000}`
   );
+});
+
+const io = socket(server, {
+  cors: {
+    origin: "https://localhost:3000",
+    credentials: true,
+  },
+});
+
+global.onlineUsers = new Map();
+io.on("connection", (socket) => {
+  global.chatSocket = socket;
+  socket.on("add-user", (userId) => {
+    onlineUsers.set(userId, socket.id);
+  });
+  socket.on("send-msg", (data) => {
+    const sendUserSocket = onlineUsers.get(data.to);
+  });
+  if (sendUserSocket) {
+    socket.to(sendUserSocket).emit("msg-recieve", data.msg);
+  }
 });
