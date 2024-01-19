@@ -1,9 +1,41 @@
-import { useEffect } from "react";
+/* eslint-disable react/prop-types */
 import styled from "styled-components";
-import { Logout } from "./index";
+import axios from "axios";
+import { ChatInput, Logout } from "./index";
+import { sendMessageRoute, recieveMessageRoute } from "../utils/APIRoutes";
+import { useEffect, useState } from "react";
 
-export default function ChatContainer({ currentChat }) {
-  console.log(currentChat);
+export default function ChatContainer({ currentChat, currentUser }) {
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    const fetchMessages = async () => {
+      try {
+        const response = await axios.post(recieveMessageRoute, {
+          from: currentUser._id,
+          to: currentChat._id,
+        });
+        setMessages(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchMessages(); // 调用异步函数
+  }, [currentChat]);
+
+  const handleSendMsg = async (msg) => {
+    try {
+      const response = await axios.post(sendMessageRoute, {
+        from: currentUser._id,
+        to: currentChat._id,
+        message: msg,
+      });
+
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     currentChat && (
@@ -22,8 +54,24 @@ export default function ChatContainer({ currentChat }) {
           </div>
           <Logout />
         </div>
-        <div className="chat-message"></div>
-        <div className="chat-input"></div>
+        <div className="chat-messages">
+          {messages.map((message, index) => {
+            return (
+              <div key={index}>
+                <div
+                  className={`message ${
+                    message.fromSelf ? "sended" : "recieved"
+                  }`}
+                >
+                  <div className="content ">
+                    <p>{message.message}</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <ChatInput handleSendMsg={handleSendMsg} />
       </Container>
     )
   );
